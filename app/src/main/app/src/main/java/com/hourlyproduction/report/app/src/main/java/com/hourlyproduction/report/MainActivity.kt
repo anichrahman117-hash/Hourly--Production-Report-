@@ -8,41 +8,30 @@ import android.widget.*
 
 class MainActivity : Activity() {
 
-    private lateinit var layout: LinearLayout
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         showHome()
     }
 
-    private fun createLayout() {
-        layout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
-            setPadding(30, 30, 30, 30)
-            setBackgroundColor(Color.rgb(245, 247, 250))
-        }
-    }
-
     private fun showHome() {
-        createLayout()
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(24, 24, 24, 24)
+        layout.gravity = Gravity.CENTER
+        layout.setBackgroundColor(Color.WHITE)
 
-        val title = TextView(this).apply {
-            text = "HOURLY PRODUCTION REPORT"
-            textSize = 24f
-            gravity = Gravity.CENTER
-            setTextColor(Color.BLUE)
-        }
+        val title = TextView(this)
+        title.text = "HOURLY PRODUCTION REPORT"
+        title.textSize = 23f
+        title.gravity = Gravity.CENTER
 
-        val admin = Button(this).apply {
-            text = "ADMIN LOGIN"
-            setOnClickListener { showLogin("ADMIN") }
-        }
+        val admin = Button(this)
+        admin.text = "ADMIN LOGIN"
+        admin.setOnClickListener { showEntry() }
 
-        val employee = Button(this).apply {
-            text = "EMPLOYEE LOGIN"
-            setOnClickListener { showLogin("EMPLOYEE") }
-        }
+        val employee = Button(this)
+        employee.text = "EMPLOYEE LOGIN"
+        employee.setOnClickListener { showEntry() }
 
         layout.addView(title)
         layout.addView(admin)
@@ -51,46 +40,67 @@ class MainActivity : Activity() {
         setContentView(layout)
     }
 
-    private fun showLogin(role: String) {
-        createLayout()
+    private fun showEntry() {
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(20, 20, 20, 20)
 
-        val title = TextView(this).apply {
-            text = "$role LOGIN"
-            textSize = 25f
-            gravity = Gravity.CENTER
-            setTextColor(Color.BLUE)
-        }
+        val title = TextView(this)
+        title.text = "PRODUCTION ENTRY"
+        title.textSize = 24f
 
-        val username = EditText(this).apply {
-            hint = "Enter User ID"
-        }
+        val floor = Spinner(this)
+        floor.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            listOf("Select Floor", "Floor 1", "Floor 2", "Floor 3")
+        )
 
-        val password = EditText(this).apply {
-            hint = "Enter Password"
-            inputType = 129
-        }
+        val lines = Array(30) { "Line ${it + 1}" }
+        val selectedLines = LinearLayout(this)
+        selectedLines.orientation = LinearLayout.VERTICAL
 
-        val login = Button(this).apply {
-            text = "LOGIN"
-            setOnClickListener {
-                Toast.makeText(
-                    this@MainActivity,
-                    "Login system will be connected next",
-                    Toast.LENGTH_SHORT
-                ).show()
+        val checks = lines.map { line ->
+            CheckBox(this).apply {
+                text = line
             }
         }
 
-        val back = Button(this).apply {
-            text = "BACK"
-            setOnClickListener { showHome() }
+        checks.forEach { selectedLines.addView(it) }
+
+        val scroll = ScrollView(this)
+        scroll.addView(selectedLines)
+
+        val hour = Spinner(this)
+        hour.adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_dropdown_item,
+            listOf("Select Hour", "9 AM", "10 AM", "11 AM", "12 PM",
+                "1 PM", "2 PM", "3 PM", "4 PM", "5 PM")
+        )
+
+        val quantity = EditText(this)
+        quantity.hint = "Enter Production Quantity"
+        quantity.inputType = 2
+
+        val save = Button(this)
+        save.text = "SAVE PRODUCTION"
+        save.setOnClickListener {
+            val chosen = checks.filter { it.isChecked }
+            if (floor.selectedItemPosition == 0 ||
+                chosen.isEmpty() || quantity.text.isEmpty()) {
+                Toast.makeText(this, "Fill all information", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Entry demo completed", Toast.LENGTH_SHORT).show()
+            }
         }
 
         layout.addView(title)
-        layout.addView(username)
-        layout.addView(password)
-        layout.addView(login)
-        layout.addView(back)
+        layout.addView(floor)
+        layout.addView(scroll)
+        layout.addView(hour)
+        layout.addView(quantity)
+        layout.addView(save)
 
         setContentView(layout)
     }
